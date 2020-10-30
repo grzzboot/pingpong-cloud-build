@@ -8,7 +8,7 @@ import com.grzzboot.service.pingpong.resource.service.domain.PingEntity;
 @Service
 public class PingPongService {
 
-	private static final String MESSAGE_BASE = "Pong";
+	private static final String MESSAGE_BASE = "Pong working feature branch";
 	
 	public PingEntity ping(String name) {
 		StringBuilder sb = new StringBuilder(MESSAGE_BASE);
