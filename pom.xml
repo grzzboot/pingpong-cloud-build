@@ -9,6 +9,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
+	<groupId>com.grzzboot</groupId>
 	<artifactId>pingpong-cloud-build</artifactId>
 	<name>pingpong-cloud-build</name>
 	<version>1.0.2-SNAPSHOT</version>
