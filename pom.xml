@@ -15,7 +15,7 @@
 	<description>A simple service project for experimenting with Cloud Build CI/CD pipelines</description>
 	
 	<scm>
-	  <developerConnection>scm:git:git@github.com:grzzboot/pingpong-cloud-buildt.git</developerConnection>
+	  <developerConnection>scm:git:git@github.com:grzzboot/pingpong-cloud-build.git</developerConnection>
 	  <tag>HEAD</tag>
   </scm>
 
