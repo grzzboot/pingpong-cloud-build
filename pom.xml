@@ -84,7 +84,6 @@
 					<configuration>
 						<tagNameFormat>@{project.version}</tagNameFormat>
 						<scmDevelopmentCommitComment>@{prefix} [skip ci] prepare for next development iteration</scmDevelopmentCommitComment>
-						<suppressCommitBeforeTag>true</suppressCommitBeforeTag>
 						<!-- <scmCommentPrefix>[maven-release-plugin][skip ci]</scmCommentPrefix> -->
 					</configuration>
 				</plugin>
