@@ -81,7 +81,7 @@ steps:
   args:
   - '-c'
   - |
-    kubectl edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION)
+    kubectl edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat /workspace/_RELEASE_VERSION)
     kustomize build . > /deploy-test.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
@@ -107,7 +107,7 @@ steps:
   args:
   - '-c'
   - |
-    kubectl edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION)
+    kubectl edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat /workspace/_RELEASE_VERSION)
     kustomize build > deploy-prod.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
