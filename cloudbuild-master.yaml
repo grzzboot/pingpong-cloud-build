@@ -34,7 +34,7 @@ steps:
 
 # Perform source code build
 - id: 'Perform Maven build including JUnit and functional tests'
-  name: 'gcr.io/cloud-builders/mvn'
+  name: 'maven:3.6.3-jdk-11'
   entrypoint: 'mvn'
   args: ['--settings', 'settings.xml', '-B', '-q', 'clean', 'install']
   
@@ -42,7 +42,7 @@ steps:
 # Established by stripping -SNAPSHOT from current maven version and storing the value in a file
 # Use $(cat _RELEASE_VERSION) to make use of the release version.
 - id: 'Extract release version'
-  name: 'gcr.io/cloud-builders/mvn'
+  name: 'maven:3.6.3-jdk-11'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -62,7 +62,7 @@ steps:
 
 # Release the version to Github (No test, no artifact deploy for a service)
 - id: 'Release the version to Github'
-  name: 'gcr.io/cloud-builders/mvn'
+  name: 'maven:3.6.3-jdk-11'
   entrypoint: 'bash'
   args:
   - '-c'
