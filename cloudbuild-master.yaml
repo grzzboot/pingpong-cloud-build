@@ -67,8 +67,6 @@ steps:
   args:
   - '-c'
   - |-
-    git config --global user.email "cloudbuild@grzzboot.com"
-    git config --global user.name "Cloud Build"
     mvn --settings settings.xml -B -q release:prepare release:perform -Darguments="-Dmaven.test.skip=true -Dmaven.deploy.skip=true"
   volumes:
   - name: 'ssh'
