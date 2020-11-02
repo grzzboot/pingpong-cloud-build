@@ -50,6 +50,7 @@ steps:
   - |-
     git config --global user.email "cloudbuild@grzzboot.com"
     git config --global user.name "Cloud Build"
+    git config --global core.sshCommand 'ssh -o StrictHostKeyChecking=no'
     mvn --settings settings.xml -B -q release:prepare release:perform -Darguments="-Dmaven.test.skip=true -Dmaven.deploy.skip=true"
 
 substitutions:
