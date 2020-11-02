@@ -1,10 +1,17 @@
 steps:
+- id: 'Access secret'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: bash
+  args:
+  - '-c'
+  - |
+    gcloud secrets versions access 1 --secret=cloudbuild-maven-settings-secret > settings.xml
 
 # Perform source code build
 - id: 'Perform Maven build including JUnit and functional tests'
   name: 'maven:3.6.1-jdk-11'
   entrypoint: 'mvn'
-  args: ['-B', '-q', 'clean', 'install']
+  args: ['--settings', 'settings.xml', '-B', '-q', 'clean', 'install']
   
 # Produce a docker image release version.
 # Established by stripping -SNAPSHOT from current maven version and storing the value in a file
@@ -15,7 +22,7 @@ steps:
   args:
   - '-c'
   - |-
-    echo "$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)" | sed "s/-SNAPSHOT//" > _RELEASE_VERSION
+    echo "$(mvn --settings settings.xml -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)" | sed "s/-SNAPSHOT//" > _RELEASE_VERSION
     cat _RELEASE_VERSION
   
 # Produce a docker image from the build result using release version.
@@ -32,7 +39,7 @@ steps:
 - id: 'Release the version to Github'
   name: 'maven:3.6.3-jdk-11'
   entrypoint: 'mvn'
-  args: ['-B', '-q', 'release:prepare', 'release:perform', '-Darguments="-Dmaven.test.skip=true -Dmaven.deploy.skip=true"']
+  args: ['--settings', 'settings.xml', '-B', '-q', 'release:prepare', 'release:perform', '-Darguments="-Dmaven.test.skip=true -Dmaven.deploy.skip=true"']
 
 substitutions:
   _IMAGE_NAME: pingpong-cloud-build
