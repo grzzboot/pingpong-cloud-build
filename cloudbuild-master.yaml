@@ -31,20 +31,10 @@ steps:
   volumes:
   - name: 'ssh'
     path: /root/.ssh
-    
-# Connect to the repository
-#- name: 'gcr.io/cloud-builders/git'
-#  args:
-#  - clone
-#  - --recurse-submodules
-#  - git@github.com:grzzboot/pingpong-cloud-build
-#  volumes:
-#  - name: 'ssh'
-#    path: /root/.ssh
 
 # Perform source code build
 - id: 'Perform Maven build including JUnit and functional tests'
-  name: 'maven:3.6.1-jdk-11'
+  name: 'maven:3.6.3-jdk-11'
   entrypoint: 'mvn'
   args: ['--settings', 'settings.xml', '-B', '-q', 'clean', 'install']
   
@@ -69,12 +59,6 @@ steps:
   - |-
     docker build -t gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION) .
     docker push gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION)
-    
-# Release the version to Github (No test, no artifact deploy for a service)
-#- id: 'Release the version to Github'
-#  name: 'maven:3.6.3-jdk-11'
-#  entrypoint: 'mvn'
-#  args: ['--settings', 'settings.xml', '-B', '-q', 'release:prepare', 'release:perform', '-Darguments="-Dmaven.test.skip=true -Dmaven.deploy.skip=true"']
 
 # Release the version to Github (No test, no artifact deploy for a service)
 - id: 'Release the version to Github'
