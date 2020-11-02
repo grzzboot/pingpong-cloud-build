@@ -77,7 +77,7 @@ steps:
 # Run kustomize to produce test environment deploy-test.yaml
 - id: 'Produce YAML for test deploy'
   name: 'gcr.io/cloud-builders/kubectl'
-  args: ['kustomize', '.', '>', 'deploy-test.yaml']
+  args: ['kustomize', 'src/k8s/single-deployment/test', '>', 'deploy-test.yaml']
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
     - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
