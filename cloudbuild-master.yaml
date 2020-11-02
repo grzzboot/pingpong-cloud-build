@@ -84,7 +84,7 @@ steps:
     kustomize edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat /workspace/_RELEASE_VERSION)
     kustomize build . > deploy-test.yaml
   env:
-    - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
+    - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
     - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
   dir: 'src/k8s/single-deployment/test'
  
@@ -94,7 +94,7 @@ steps:
   args:
   - run
   - --filename=deploy-test.yaml
-  - --location=europe-west3-a
+  - --location=$_COMPUTE_ZONE
   - --cluster=pingpong-site1-cluster
   dir: 'src/k8s/single-deployment/test'
   
@@ -110,7 +110,7 @@ steps:
     kustomize edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat /workspace/_RELEASE_VERSION)
     kustomize build > deploy-prod.yaml
   env:
-    - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
+    - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
     - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
   dir: 'src/k8s/single-deployment/prod'
  
@@ -125,4 +125,5 @@ steps:
   dir: 'src/k8s/single-deployment/prod'
 
 substitutions:
+  _COMPUTE_ZONE: europe-west3-a
   _IMAGE_NAME: pingpong-cloud-build
