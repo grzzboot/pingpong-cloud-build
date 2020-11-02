@@ -85,8 +85,8 @@ steps:
     kustomize build . > deploy-test.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
-    - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
-  dir: 'src/k8s/single-deployment/test'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=$_CONTAINER_CLUSTER'
+  dir: '$_K8S_TEST_ENV_FOLDER'
  
 # Deploy service to test environment
 - id: 'Perform deploy to test environment'
@@ -96,7 +96,7 @@ steps:
   - --filename=deploy-test.yaml
   - --location=$_COMPUTE_ZONE
   - --cluster=pingpong-site1-cluster
-  dir: 'src/k8s/single-deployment/test'
+  dir: '$_K8S_TEST_ENV_FOLDER'
   
 # TODO: Potentially run an intergation and acceptance tests to verify all is well
 
@@ -111,8 +111,8 @@ steps:
     kustomize build > deploy-prod.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
-    - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
-  dir: 'src/k8s/single-deployment/prod'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=$_CONTAINER_CLUSTER'
+  dir: '$_K8S_PROD_ENV_FOLDER'
  
 # Deploy service to prod environment
 - id: 'Perform deploy to prod environment'
@@ -122,8 +122,11 @@ steps:
   - --filename=deploy-prod.yaml
   - --location=europe-west3-a
   - --cluster=pingpong-site1-cluster
-  dir: 'src/k8s/single-deployment/prod'
+  dir: '$_K8S_PROD_ENV_FOLDER'
 
 substitutions:
   _COMPUTE_ZONE: europe-west3-a
+  _CONTAINER_CLUSTER: pingpong-site1-cluster
   _IMAGE_NAME: pingpong-cloud-build
+  _K8S_TEST_ENV_FOLDER: src/k8s/single-deployment/test
+  _K8S_PROD_ENV_FOLDER: src/k8s/single-deployment/prod
