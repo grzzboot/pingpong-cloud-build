@@ -33,14 +33,14 @@ steps:
     path: /root/.ssh
     
 # Connect to the repository
-- name: 'gcr.io/cloud-builders/git'
-  args:
-  - clone
-  - --recurse-submodules
-  - git@github.com:grzzboot/pingpong-cloud-build
-  volumes:
-  - name: 'ssh'
-    path: /root/.ssh
+#- name: 'gcr.io/cloud-builders/git'
+#  args:
+#  - clone
+#  - --recurse-submodules
+#  - git@github.com:grzzboot/pingpong-cloud-build
+#  volumes:
+#  - name: 'ssh'
+#    path: /root/.ssh
 
 # Perform source code build
 - id: 'Perform Maven build including JUnit and functional tests'
