@@ -8,7 +8,7 @@ steps:
     gcloud secrets versions access 1 --secret=cloudbuild-maven-settings-secret > settings.xml
 
 - id: 'Access the Github id RSA secret'
-  name: gcr.io/cloud-builders/gcloud
+  name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args: [ '-c', 'gcloud secrets versions access latest --secret=id-rsa-github-secret > /root/.ssh/id_github' ]
   volumes:
@@ -34,7 +34,7 @@ steps:
 
 # Perform source code build
 - id: 'Perform Maven build including JUnit and functional tests'
-  name: 'maven:3.6.3-jdk-11'
+  name: 'gcr.io/cloud-builders/mvn'
   entrypoint: 'mvn'
   args: ['--settings', 'settings.xml', '-B', '-q', 'clean', 'install']
   
@@ -42,7 +42,7 @@ steps:
 # Established by stripping -SNAPSHOT from current maven version and storing the value in a file
 # Use $(cat _RELEASE_VERSION) to make use of the release version.
 - id: 'Extract release version'
-  name: 'maven:3.6.3-jdk-11'
+  name: 'gcr.io/cloud-builders/mvn'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -62,7 +62,7 @@ steps:
 
 # Release the version to Github (No test, no artifact deploy for a service)
 - id: 'Release the version to Github'
-  name: 'maven:3.6.3-jdk-11'
+  name: 'gcr.io/cloud-builders/mvn'
   entrypoint: 'bash'
   args:
   - '-c'
