@@ -11,7 +11,7 @@
 
 	<groupId>com.grzzboot</groupId>
 	<artifactId>pingpong-cloud-build</artifactId>
-	<version>1.0.19-SNAPSHOT</version>
+	<version>1.0.20-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>pingpong-cloud-build</name>
 	<description>A simple service project for experimenting with Cloud Build CI/CD pipelines</description>
