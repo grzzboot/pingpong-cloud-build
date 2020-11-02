@@ -1,11 +1,36 @@
 steps:
-- id: 'Access secret'
+- id: 'Access the Maven settings-xml secret'
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: bash
   args:
   - '-c'
   - |
     gcloud secrets versions access 1 --secret=cloudbuild-maven-settings-secret > settings.xml
+
+- id: 'Access the Github id RSA secret'
+  name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', 'gcloud secrets versions access latest --secret=id-rsa-github-secret > /root/.ssh/id_github' ]
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+# Set up git with key and domain
+- id: 'Set up git with key and domain'
+  name: 'gcr.io/cloud-builders/git'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    chmod 600 /root/.ssh/id_github
+    cat <<EOF >/root/.ssh/config
+    Hostname github.com
+    IdentityFile /root/.ssh/id_github
+    EOF
+    ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
 
 # Perform source code build
 - id: 'Perform Maven build including JUnit and functional tests'
@@ -52,6 +77,9 @@ steps:
     git config --global user.name "Cloud Build"
     git config --global core.sshCommand 'ssh -o StrictHostKeyChecking=no'
     mvn --settings settings.xml -B -q release:prepare release:perform -Darguments="-Dmaven.test.skip=true -Dmaven.deploy.skip=true"
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
 
 substitutions:
   _IMAGE_NAME: pingpong-cloud-build
