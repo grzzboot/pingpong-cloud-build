@@ -74,5 +74,23 @@ steps:
   - name: 'ssh'
     path: /root/.ssh
 
+# Run kustomize to produce test environment deploy-test.yaml
+- id: 'Produce YAML for test deploy'
+  name: 'gcr.io/cloud-builders/kubectl'
+  args: ['kustomize', '.', '>', 'deploy-test.yaml']
+ 
+# Deploy service to test environment
+- id: 'Perform deploy to test environment'
+  name: "gcr.io/cloud-builders/gke-deploy"
+  args:
+  - run
+  - --filename=deploy-test.yaml
+  - --location=europe-west3-a
+  - --cluster=pingpong-site1-cluster
+  
+# TODO: Potentially run an intergation test to verify all is well
+
+# Deploy to production environment
+
 substitutions:
   _IMAGE_NAME: pingpong-cloud-build
