@@ -11,7 +11,7 @@
 
 	<groupId>com.grzzboot</groupId>
 	<artifactId>pingpong-cloud-build</artifactId>
-	<version>1.0.20</version>
+	<version>1.0.21-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>pingpong-cloud-build</name>
 	<description>A simple service project for experimenting with Cloud Build CI/CD pipelines</description>
@@ -20,7 +20,7 @@
 	<scm>
 		<developerConnection>scm:git:git@github.com:grzzboot/pingpong-cloud-build.git</developerConnection>
 		<connection>scm:git:git@github.com:grzzboot/pingpong-cloud-build.git</connection>
-		<tag>1.0.20</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<properties>
