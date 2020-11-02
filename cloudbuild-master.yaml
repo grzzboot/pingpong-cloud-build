@@ -81,10 +81,12 @@ steps:
   args:
   - '-c'
   - |
-    kustomize build ./src/k8s/single-deployment/test > deploy-test.yaml
+    kubectl edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION)
+    kustomize build . > /deploy-test.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
     - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
+  dir: 'src/k8s/single-deployment/test'
  
 # Deploy service to test environment
 - id: 'Perform deploy to test environment'
@@ -94,20 +96,23 @@ steps:
   - --filename=deploy-test.yaml
   - --location=europe-west3-a
   - --cluster=pingpong-site1-cluster
+  dir: 'src/k8s/single-deployment/test'
   
-# TODO: Potentially run an intergation test to verify all is well
+# TODO: Potentially run an intergation and acceptance tests to verify all is well
 
-# Run kustomize to produce test environment deploy-prod.yaml
+# Run kustomize to produce prod environment deploy-prod.yaml
 - id: 'Produce YAML for prod deploy'
   name: 'gcr.io/pingpong-site1-gcp-demo/kustomize'
   entrypoint: bash
   args:
   - '-c'
   - |
-    kustomize build ./src/k8s/single-deployment/prod > deploy-prod.yaml
+    kubectl edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION)
+    kustomize build > deploy-prod.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=europe-west3-a'
     - 'CLOUDSDK_CONTAINER_CLUSTER=pingpong-site1-cluster'
+  dir: 'src/k8s/single-deployment/prod'
  
 # Deploy service to prod environment
 - id: 'Perform deploy to prod environment'
@@ -117,6 +122,7 @@ steps:
   - --filename=deploy-prod.yaml
   - --location=europe-west3-a
   - --cluster=pingpong-site1-cluster
+  dir: 'src/k8s/single-deployment/prod'
 
 substitutions:
   _IMAGE_NAME: pingpong-cloud-build

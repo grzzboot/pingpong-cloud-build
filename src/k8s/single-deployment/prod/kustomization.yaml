@@ -12,4 +12,4 @@ resources:
 
 images:
 - name: gcr.io/pingpong-site1-gcp-demo/pingpong-cloud-build
-  newName: 1.0.15
+  newTag: 1.0.15
