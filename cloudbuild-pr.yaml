@@ -20,7 +20,7 @@ steps:
   id: 'MavenBuild'
   waitFor: ['MavenSettings']
   entrypoint: 'mvn'
-  args: ['clean', 'install']
+  args: ['-B', '-q', 'clean', 'install']
   
  # TODO: Perform code analysis steps.
  
