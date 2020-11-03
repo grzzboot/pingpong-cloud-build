@@ -25,3 +25,53 @@ steps:
  # TODO: Perform code analysis steps.
  
  # TODO: Stage deploy steps...
+ 
+ # Produce a docker image from the build result using PR branch and build number.
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'GcrRelease'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |-
+    docker build -t gcr.io/$PROJECT_ID/$REPO_NAME:$BRANCH_NAME-$_PR_NUMBER .
+    docker push gcr.io/$PROJECT_ID/$REPO_NAME:$BRANCH_NAME-$_PR_NUMBER
+ 
+ # Run kustomize to produce stage environment deploy-stage.yaml
+- name: 'gcr.io/pingpong-site1-gcp-demo/kustomize'
+  id: 'DeployStageYaml'
+  entrypoint: bash
+  args:
+  - '-c'
+  - |
+    kustomize edit set image gcr.io/$PROJECT_ID/$REPO_NAME:$BRANCH_NAME-$_PR_NUMBER
+    kustomize build . > deploy-stage.yaml
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=$_CONTAINER_CLUSTER'
+  dir: '$_K8S_STAGE_ENV_FOLDER'
+ 
+# Deploy service to stage environment
+- name: "gcr.io/cloud-builders/gke-deploy"
+  id: 'DeployStage'
+  args:
+  - run
+  - --filename=deploy-stage.yaml
+  - --location=$_COMPUTE_ZONE
+  - --cluster=pingpong-site1-cluster
+  dir: '$_K8S_STAGE_ENV_FOLDER'
+  
+# TODO: Potentially run an intergation and acceptance tests to verify all is well
+
+# undeploy service from stage environment
+- name: "gcr.io/cloud-builders/kubectl"
+  id: 'UndeployStage'
+  args: ['delete', '-f', 'deploy-stage.yaml']
+  dir: '$_K8S_STAGE_ENV_FOLDER'
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=$_CONTAINER_CLUSTER'
+
+substitutions:
+  _COMPUTE_ZONE: europe-west3-a
+  _CONTAINER_CLUSTER: pingpong-site1-cluster
+  _K8S_STAGE_ENV_FOLDER: src/k8s/stage
