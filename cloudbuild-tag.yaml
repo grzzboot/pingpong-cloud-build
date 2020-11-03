@@ -1,5 +1,0 @@
-# Perform source code build
-steps:
-- name: 'maven:3.6.1-jdk-11'
-  entrypoint: 'mvn'
-  args: ['clean', 'install']
