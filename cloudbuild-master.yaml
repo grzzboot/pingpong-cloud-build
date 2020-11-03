@@ -1,14 +1,23 @@
+# Cloud Build YAML for a master builds => application releases.
+# The idea here is to run bundled unit and application tests, then produce a tag-docker image, install
+# it in a tset environment, run some tests and then release to prod.
+# A TODO step for a Sonar build or some nice code-analysis tool is also provided (could of course be
+# part of the simple build step).
 steps:
-- id: 'Access the Maven settings-xml secret'
-  name: 'gcr.io/cloud-builders/gcloud'
+
+#Access the Maven settings-xml secret
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'MavenSettings'
   entrypoint: bash
   args:
   - '-c'
   - |
     gcloud secrets versions access 1 --secret=cloudbuild-maven-settings-secret > settings.xml
 
-- id: 'Access the Github id RSA secret'
-  name: 'gcr.io/cloud-builders/gcloud'
+# Access the Github id RSA secret
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'GithubIdRsa'
+  waitFor: [ '-' ]
   entrypoint: 'bash'
   args: [ '-c', 'gcloud secrets versions access latest --secret=id-rsa-github-secret > /root/.ssh/id_github' ]
   volumes:
@@ -16,8 +25,9 @@ steps:
     path: /root/.ssh
 
 # Set up git with key and domain
-- id: 'Set up git with key and domain'
-  name: 'gcr.io/cloud-builders/gcloud'
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'GithubSshConfig'
+  waitFor: [ 'GithubIdRsa' ]
   entrypoint: 'bash'
   args:
   - '-c'
@@ -32,17 +42,18 @@ steps:
   - name: 'ssh'
     path: /root/.ssh
 
-# Perform source code build
-- id: 'Perform Maven build including JUnit and functional tests'
-  name: 'maven:3.6.3-jdk-11'
+# Perform Maven build including JUnit and functional tests
+- name: 'maven:3.6.3-jdk-11'
+  id: 'MavenBuild'
+  waitFor: ['MavenSettings']
   entrypoint: 'mvn'
   args: ['--settings', 'settings.xml', '-B', '-q', 'clean', 'install']
   
 # Produce a docker image release version.
 # Established by stripping -SNAPSHOT from current maven version and storing the value in a file
 # Use $(cat _RELEASE_VERSION) to make use of the release version.
-- id: 'Extract release version'
-  name: 'maven:3.6.3-jdk-11'
+- name: 'maven:3.6.3-jdk-11'
+  id: 'ReleaseVersion'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -51,18 +62,18 @@ steps:
     cat _RELEASE_VERSION
   
 # Produce a docker image from the build result using release version.
-- id: 'Build and push docker image to GCR'
-  name: 'gcr.io/cloud-builders/docker'
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'GcrRelease'
   entrypoint: 'bash'
   args:
   - '-c'
   - |-
-    docker build -t gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION) .
-    docker push gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat _RELEASE_VERSION)
+    docker build -t gcr.io/$PROJECT_ID/$REPO_NAME:$(cat _RELEASE_VERSION) .
+    docker push gcr.io/$PROJECT_ID/$REPO_NAME:$(cat _RELEASE_VERSION)
 
 # Release the version to Github (No test, no artifact deploy for a service)
-- id: 'Release the version to Github'
-  name: 'maven:3.6.3-jdk-11'
+- name: 'maven:3.6.3-jdk-11'
+  id: 'GithubRelease'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -75,13 +86,13 @@ steps:
     path: /root/.ssh
 
 # Run kustomize to produce test environment deploy-test.yaml
-- id: 'Produce YAML for test deploy'
-  name: 'gcr.io/pingpong-site1-gcp-demo/kustomize'
+- name: 'gcr.io/pingpong-site1-gcp-demo/kustomize'
+  id: 'DeployTestYaml'
   entrypoint: bash
   args:
   - '-c'
   - |
-    kustomize edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat /workspace/_RELEASE_VERSION)
+    kustomize edit set image gcr.io/$PROJECT_ID/$REPO_NAME:$(cat /workspace/_RELEASE_VERSION)
     kustomize build . > deploy-test.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
@@ -89,8 +100,8 @@ steps:
   dir: '$_K8S_TEST_ENV_FOLDER'
  
 # Deploy service to test environment
-- id: 'Perform deploy to test environment'
-  name: "gcr.io/cloud-builders/gke-deploy"
+- name: "gcr.io/cloud-builders/gke-deploy"
+  id: 'DeployTest'
   args:
   - run
   - --filename=deploy-test.yaml
@@ -101,13 +112,13 @@ steps:
 # TODO: Potentially run an intergation and acceptance tests to verify all is well
 
 # Run kustomize to produce prod environment deploy-prod.yaml
-- id: 'Produce YAML for prod deploy'
-  name: 'gcr.io/pingpong-site1-gcp-demo/kustomize'
+- name: 'gcr.io/pingpong-site1-gcp-demo/kustomize'
+  id: 'DeployProdYaml'
   entrypoint: bash
   args:
   - '-c'
   - |
-    kustomize edit set image gcr.io/$PROJECT_ID/$_IMAGE_NAME:$(cat /workspace/_RELEASE_VERSION)
+    kustomize edit set image gcr.io/$PROJECT_ID/$REPO_NAME:$(cat /workspace/_RELEASE_VERSION)
     kustomize build > deploy-prod.yaml
   env:
     - 'CLOUDSDK_COMPUTE_ZONE=$_COMPUTE_ZONE'
@@ -115,8 +126,8 @@ steps:
   dir: '$_K8S_PROD_ENV_FOLDER'
  
 # Deploy service to prod environment
-- id: 'Perform deploy to prod environment'
-  name: "gcr.io/cloud-builders/gke-deploy"
+- name: "gcr.io/cloud-builders/gke-deploy"
+  id: 'DeployProd'
   args:
   - run
   - --filename=deploy-prod.yaml
@@ -127,6 +138,5 @@ steps:
 substitutions:
   _COMPUTE_ZONE: europe-west3-a
   _CONTAINER_CLUSTER: pingpong-site1-cluster
-  _IMAGE_NAME: pingpong-cloud-build
   _K8S_TEST_ENV_FOLDER: src/k8s/single-deployment/test
   _K8S_PROD_ENV_FOLDER: src/k8s/single-deployment/prod

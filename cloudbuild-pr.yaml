@@ -1,5 +1,27 @@
-# Perform source code build
+# Cloud Build YAML for a Pull Request (Github).
+# The idea here is to run bundled unit and application tests, then produce a PR-docker image, install
+# it in a stage environment and run some integration tests, then tear down the stage release again.
+# A TODO step for a Sonar build or some nice code-analysis tool is also provided (could of course be
+# part of the simple build step).
 steps:
+
+#Access the Maven settings-xml secret
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'MavenSettings'
+  entrypoint: bash
+  args:
+  - '-c'
+  - |
+    gcloud secrets versions access 1 --secret=cloudbuild-maven-settings-secret > settings.xml
+
+# Perform Maven build including JUnit and functional tests. Just for fun I've added the waitFor.
+# It's really not needed but still...
 - name: 'maven:3.6.1-jdk-11'
+  id: 'MavenBuild'
+  waitFor: ['MavenSettings']
   entrypoint: 'mvn'
   args: ['clean', 'install']
+  
+ # TODO: Perform code analysis steps.
+ 
+ # TODO: Stage deploy steps...
