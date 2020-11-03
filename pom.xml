@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -11,13 +9,33 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
+	<groupId>com.grzzboot</groupId>
 	<artifactId>pingpong-cloud-build</artifactId>
+	<version>1.0.26-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>pingpong-cloud-build</name>
 	<description>A simple service project for experimenting with Cloud Build CI/CD pipelines</description>
+	<url>https://github.com/grzzboot/pingpong-cloud-build</url>
+
+	<scm>
+		<developerConnection>scm:git:git@github.com:grzzboot/pingpong-cloud-build.git</developerConnection>
+		<connection>scm:git:git@github.com:grzzboot/pingpong-cloud-build.git</connection>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<java.version>11</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub grzzboot Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/grzzboot/pingpong-cloud-build</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 
@@ -39,27 +57,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
-
 		<pluginManagement>
 			<plugins>
+				
 				<plugin>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
-					<configuration>
-						<executable>true</executable>
-					</configuration>
 					<executions>
 						<execution>
 							<goals>
@@ -68,6 +76,15 @@
 						</execution>
 					</executions>
 				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<tagNameFormat>@{project.version}</tagNameFormat>
+						<scmCommentPrefix>[maven-release-plugin][skip ci]</scmCommentPrefix>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -75,6 +92,10 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
 			</plugin>
 		</plugins>
 

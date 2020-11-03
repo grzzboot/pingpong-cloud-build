@@ -1,0 +1,15 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+namespace: pingpong-prod
+
+commonLabels:
+  component: pingpong
+
+resources:
+- namespace.yaml
+- deployment.yaml
+
+images:
+- name: gcr.io/pingpong-site1-gcp-demo/pingpong-cloud-build
+  newTag: 1.0.15
