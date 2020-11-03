@@ -138,5 +138,5 @@ steps:
 substitutions:
   _COMPUTE_ZONE: europe-west3-a
   _CONTAINER_CLUSTER: pingpong-site1-cluster
-  _K8S_TEST_ENV_FOLDER: src/k8s/single-deployment/test
-  _K8S_PROD_ENV_FOLDER: src/k8s/single-deployment/prod
+  _K8S_TEST_ENV_FOLDER: src/k8s/test
+  _K8S_PROD_ENV_FOLDER: src/k8s/prod
