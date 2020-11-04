@@ -126,6 +126,12 @@ gcloud secrets create id-rsa-github-secret --data-file=id_github
 
 Same thing here, the name is used in the pipelines so don't change it unless you're ready to adapt other stuff as well.
 
+#### Build the Kuztomize community builder
+
+The provided kubectl Kustomize implementation won't do the job for us so you need to build one from [cloud-builders-community](https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/kustomize). One simple way is to simply clone the Github project, navigate to kustomize builder and then run the provided `cloudbuild.yaml` file. If you are connected to your project this will result in a build and GCR upload to the same.
+
+After this a Cloud Build in your project can make use of this builder.
+
 ### Create a cluster
 
 The show case assumes that you cluster is named `pingpong-site1-cluster` and runs in compute zone (not region) `europe-west3-a`. This is a potential improvement, I know, but right now that's the way it is.
