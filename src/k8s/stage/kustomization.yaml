@@ -9,3 +9,8 @@ commonLabels:
 resources:
 - namespace.yaml
 - deployment.yaml
+- service.yaml
+
+images:
+- name: gcr.io/pingpong-site1-gcp-demo/pingpong-cloud-build
+  newTag: 1.0.29
